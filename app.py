@@ -105,6 +105,93 @@ def dashboard():
     
     return render_template('dashboard.html', stats=stats, results=model_results)
 
+@app.route('/visualizations')
+def visualizations():
+    """Advanced visualizations page"""
+    if sample_data is None:
+        return "Please run the model training first!", 500
+    
+    # Ensure invoice_date is datetime
+    df = sample_data.copy()
+    if not pd.api.types.is_datetime64_any_dtype(df['invoice_date']):
+        df['invoice_date'] = pd.to_datetime(df['invoice_date'])
+    
+    # Prepare data for various charts
+    chart_data = {
+        'on_time_count': int((df['is_delayed'] == 0).sum()),
+        'delayed_count': int((df['is_delayed'] == 1).sum()),
+        
+        # Category data
+        'categories': df['vendor_category'].unique().tolist(),
+        'category_delay_rates': [
+            round((df[df['vendor_category'] == cat]['is_delayed'].mean() * 100), 2)
+            for cat in df['vendor_category'].unique()
+        ],
+        
+        # Monthly trends
+        'monthly_delays': [
+            int(df[(df['invoice_date'].dt.month == m) & (df['is_delayed'] == 1)].shape[0])
+            for m in range(1, 13)
+        ],
+        'monthly_ontime': [
+            int(df[(df['invoice_date'].dt.month == m) & (df['is_delayed'] == 0)].shape[0])
+            for m in range(1, 13)
+        ],
+        
+        # Amount distribution
+        'amount_distribution': [
+            int(df[df['invoice_amount'] < 10000].shape[0]),
+            int(df[(df['invoice_amount'] >= 10000) & (df['invoice_amount'] < 30000)].shape[0]),
+            int(df[(df['invoice_amount'] >= 30000) & (df['invoice_amount'] < 50000)].shape[0]),
+            int(df[(df['invoice_amount'] >= 50000) & (df['invoice_amount'] < 70000)].shape[0]),
+            int(df[df['invoice_amount'] >= 70000].shape[0])
+        ],
+        
+        # Scatter plot data (sample for performance)
+        'terms_scatter_delayed': [
+            {'x': int(row['payment_terms']), 'y': float(row['invoice_amount'])} 
+            for _, row in df[df['is_delayed'] == 1].sample(min(100, len(df))).iterrows()
+        ],
+        'terms_scatter_ontime': [
+            {'x': int(row['payment_terms']), 'y': float(row['invoice_amount'])} 
+            for _, row in df[df['is_delayed'] == 0].sample(min(100, len(df))).iterrows()
+        ],
+        
+        # Top vendors
+        'top_vendors': df['vendor_id'].value_counts().head(10).index.tolist(),
+        'top_vendors_counts': df['vendor_id'].value_counts().head(10).values.tolist(),
+        
+        # Cash flow delays
+        'cashflow_delays': [
+            round((df[df['cash_flow_level'] == level]['is_delayed'].mean() * 100), 2)
+            for level in ['Low', 'Medium', 'High']
+        ],
+        
+        # Heatmap data (simplified)
+        'heatmap_labels': ['15 days', '30 days', '45 days', '60+ days'],
+        'heatmap_datasets': [
+            {
+                'label': cat,
+                'data': [
+                    int(df[(df['vendor_category'] == cat) & 
+                                   (df['payment_terms'] <= 15)]['is_delayed'].sum()),
+                    int(df[(df['vendor_category'] == cat) & 
+                                   (df['payment_terms'] > 15) & 
+                                   (df['payment_terms'] <= 30)]['is_delayed'].sum()),
+                    int(df[(df['vendor_category'] == cat) & 
+                                   (df['payment_terms'] > 30) & 
+                                   (df['payment_terms'] <= 45)]['is_delayed'].sum()),
+                    int(df[(df['vendor_category'] == cat) & 
+                                   (df['payment_terms'] > 45)]['is_delayed'].sum())
+                ],
+                'backgroundColor': f'rgba({hash(cat) % 255}, {(hash(cat) * 2) % 255}, {(hash(cat) * 3) % 255}, 0.6)'
+            }
+            for cat in df['vendor_category'].unique()[:5]
+        ]
+    }
+    
+    return render_template('visualizations.html', chart_data=chart_data)
+
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     """Prediction page for new invoices"""
