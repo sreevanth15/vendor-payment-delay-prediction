@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Risk Scoring - Vendor Payment Prediction{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-wrapper">
+        <h2 class="mb-4"><i class="fas fa-exclamation-triangle text-danger"></i> Vendor Risk Scoring Dashboard</h2>
+        
+        <!-- Summary Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center bg-info text-white">
+                    <div class="card-body">
+                        <h3>{{ stats.total_vendors }}</h3>
+                        <p class="mb-0">Total Vendors</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-danger text-white">
+                    <div class="card-body">
+                        <h3>{{ stats.high_risk }}</h3>
+                        <p class="mb-0">High Risk</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-warning text-dark">
+                    <div class="card-body">
+                        <h3>{{ stats.medium_risk }}</h3>
+                        <p class="mb-0">Medium Risk</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-success text-white">
+                    <div class="card-body">
+                        <h3>{{ stats.low_risk }}</h3>
+                        <p class="mb-0">Low Risk</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Box -->
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> <strong>Risk Score Calculation:</strong> 
+            Based on historical delay rate (60%) + past delays frequency (40%). Higher scores indicate higher risk.
+        </div>
+
+        <!-- Top Risky Vendors Table -->
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3"><i class="fas fa-list-ol"></i> Top 20 Riskiest Vendors</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Rank</th>
+                                <th>Vendor ID</th>
+                                <th>Category</th>
+                                <th>Total Payments</th>
+                                <th>Delayed Payments</th>
+                                <th>Delay Rate</th>
+                                <th>Past Delays</th>
+                                <th>Risk Score</th>
+                                <th>Risk Level</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vendor in stats.top_risky_vendors %}
+                            <tr>
+                                <td><strong>{{ loop.index }}</strong></td>
+                                <td><span class="badge bg-secondary">{{ vendor.vendor_id }}</span></td>
+                                <td>{{ vendor.category }}</td>
+                                <td>{{ vendor.total }}</td>
+                                <td>{{ vendor.delayed }}</td>
+                                <td>
+                                    <span class="badge {% if vendor.delay_rate > 50 %}bg-danger{% elif vendor.delay_rate > 30 %}bg-warning{% else %}bg-info{% endif %}">
+                                        {{ vendor.delay_rate }}%
+                                    </span>
+                                </td>
+                                <td>{{ vendor.past_delays }}</td>
+                                <td>
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar {% if vendor.risk_score >= 50 %}bg-danger{% elif vendor.risk_score >= 25 %}bg-warning{% else %}bg-success{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ vendor.risk_score }}%;" 
+                                             aria-valuenow="{{ vendor.risk_score }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ vendor.risk_score }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge {% if vendor.risk_level == 'HIGH' %}bg-danger{% elif vendor.risk_level == 'MEDIUM' %}bg-warning{% else %}bg-success{% endif %}">
+                                        {{ vendor.risk_level }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showRecommendations('{{ vendor.vendor_id }}', '{{ vendor.risk_level }}')">
+                                        <i class="fas fa-lightbulb"></i> Tips
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-book"></i> Risk Mitigation Strategies</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6 class="text-danger"><i class="fas fa-times-circle"></i> High Risk Vendors</h6>
+                                <ul>
+                                    <li>Implement stricter payment terms</li>
+                                    <li>Require advance deposits</li>
+                                    <li>Weekly payment monitoring</li>
+                                    <li>Consider alternative vendors</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-warning"><i class="fas fa-exclamation-circle"></i> Medium Risk Vendors</h6>
+                                <ul>
+                                    <li>Bi-weekly payment reviews</li>
+                                    <li>Extended payment terms negotiation</li>
+                                    <li>Performance improvement plans</li>
+                                    <li>Regular communication</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-success"><i class="fas fa-check-circle"></i> Low Risk Vendors</h6>
+                                <ul>
+                                    <li>Standard payment terms</li>
+                                    <li>Monthly reviews sufficient</li>
+                                    <li>Preferred vendor status</li>
+                                    <li>Volume discounts opportunity</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recommendations Modal -->
+<div class="modal fade" id="recommendationsModal" tabindex="-1" aria-labelledby="recommendationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="recommendationsModalLabel">
+                    <i class="fas fa-lightbulb"></i> Recommendations for <span id="vendorIdSpan"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="recommendationsContent">
+                    <!-- Recommendations will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showRecommendations(vendorId, riskLevel) {
+    document.getElementById('vendorIdSpan').textContent = vendorId;
+    
+    let recommendations = '';
+    if (riskLevel === 'HIGH') {
+        recommendations = `
+            <div class="alert alert-danger">
+                <h6><i class="fas fa-exclamation-triangle"></i> High Risk Alert</h6>
+                <ul>
+                    <li><strong>Immediate Action:</strong> Schedule meeting with vendor to discuss payment issues</li>
+                    <li><strong>Payment Terms:</strong> Consider reducing credit limit or requiring prepayment</li>
+                    <li><strong>Monitoring:</strong> Flag all invoices for priority review</li>
+                    <li><strong>Alternative:</strong> Research backup vendors in this category</li>
+                </ul>
+            </div>
+        `;
+    } else if (riskLevel === 'MEDIUM') {
+        recommendations = `
+            <div class="alert alert-warning">
+                <h6><i class="fas fa-exclamation-circle"></i> Medium Risk - Needs Attention</h6>
+                <ul>
+                    <li><strong>Communication:</strong> Reach out proactively before due dates</li>
+                    <li><strong>Payment Terms:</strong> Review and possibly adjust payment schedule</li>
+                    <li><strong>Monitoring:</strong> Track next 3-5 payments closely</li>
+                    <li><strong>Support:</strong> Offer payment plan options if needed</li>
+                </ul>
+            </div>
+        `;
+    } else {
+        recommendations = `
+            <div class="alert alert-success">
+                <h6><i class="fas fa-check-circle"></i> Low Risk - Good Standing</h6>
+                <ul>
+                    <li><strong>Recognition:</strong> Consider preferred vendor program</li>
+                    <li><strong>Incentives:</strong> Offer early payment discounts</li>
+                    <li><strong>Partnership:</strong> Explore long-term contract opportunities</li>
+                    <li><strong>Monitoring:</strong> Standard monthly review is sufficient</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    document.getElementById('recommendationsContent').innerHTML = recommendations;
+    
+    const modal = new bootstrap.Modal(document.getElementById('recommendationsModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

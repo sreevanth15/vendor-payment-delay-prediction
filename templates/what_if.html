@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}What-If Analysis - Vendor Payment Prediction{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-wrapper">
+        <h2 class="mb-4"><i class="fas fa-lightbulb text-warning"></i> What-If Analysis Tool</h2>
+        
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> <strong>Interactive Prediction:</strong> 
+            Adjust the parameters below and see how they impact the payment delay prediction in real-time!
+        </div>
+
+        <div class="row">
+            <!-- Input Form -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-sliders-h"></i> Adjust Parameters</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="whatIfForm">
+                            <div class="mb-3">
+                                <label for="vendor_id" class="form-label">Vendor ID</label>
+                                <input type="text" class="form-control" id="vendor_id" value="V_001" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="vendor_category" class="form-label">Vendor Category</label>
+                                <select class="form-control" id="vendor_category" required>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Office Supplies">Office Supplies</option>
+                                    <option value="Raw Materials">Raw Materials</option>
+                                    <option value="Services">Services</option>
+                                    <option value="Manufacturing">Manufacturing</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Utilities">Utilities</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="invoice_amount" class="form-label">Invoice Amount ($)</label>
+                                <input type="range" class="form-range" id="invoice_amount" min="1000" max="100000" value="25000" step="1000" oninput="updateValueDisplay('invoice_amount')">
+                                <div class="text-center"><strong>$<span id="invoice_amount_value">25000</span></strong></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="payment_terms" class="form-label">Payment Terms (days)</label>
+                                <input type="range" class="form-range" id="payment_terms" min="15" max="90" value="30" step="5" oninput="updateValueDisplay('payment_terms')">
+                                <div class="text-center"><strong><span id="payment_terms_value">30</span> days</strong></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="vendor_past_delays" class="form-label">Vendor Past Delays</label>
+                                <input type="range" class="form-range" id="vendor_past_delays" min="0" max="20" value="3" step="1" oninput="updateValueDisplay('vendor_past_delays')">
+                                <div class="text-center"><strong><span id="vendor_past_delays_value">3</span> delays</strong></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="cash_flow_level" class="form-label">Cash Flow Level</label>
+                                <select class="form-control" id="cash_flow_level" required>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="vendor_relationship_length" class="form-label">Relationship Length (months)</label>
+                                <input type="range" class="form-range" id="vendor_relationship_length" min="1" max="60" value="12" step="1" oninput="updateValueDisplay('vendor_relationship_length')">
+                                <div class="text-center"><strong><span id="vendor_relationship_length_value">12</span> months</strong></div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-magic"></i> Predict Impact
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                    <i class="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Prediction Results</h5>
+                    </div>
+                    <div class="card-body" id="resultsPanel">
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-hand-pointer fa-3x mb-3"></i>
+                            <p>Adjust parameters and click "Predict Impact" to see results</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Root Cause Analysis -->
+                <div class="card mt-3" id="rootCauseCard" style="display: none;">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0"><i class="fas fa-search"></i> Top Contributing Factors</h5>
+                    </div>
+                    <div class="card-body" id="rootCausePanel">
+                        <!-- Root cause will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenarios Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-flask"></i> Quick Scenarios</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-primary w-100 mb-2" onclick="loadScenario('best')">
+                                    <i class="fas fa-star"></i> Best Case Scenario
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-warning w-100 mb-2" onclick="loadScenario('average')">
+                                    <i class="fas fa-balance-scale"></i> Average Scenario
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-danger w-100 mb-2" onclick="loadScenario('worst')">
+                                    <i class="fas fa-exclamation-triangle"></i> Worst Case Scenario
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateValueDisplay(fieldId) {
+    const value = document.getElementById(fieldId).value;
+    document.getElementById(fieldId + '_value').textContent = value;
+}
+
+function resetForm() {
+    document.getElementById('whatIfForm').reset();
+    updateValueDisplay('invoice_amount');
+    updateValueDisplay('payment_terms');
+    updateValueDisplay('vendor_past_delays');
+    updateValueDisplay('vendor_relationship_length');
+    document.getElementById('resultsPanel').innerHTML = `
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-hand-pointer fa-3x mb-3"></i>
+            <p>Adjust parameters and click "Predict Impact" to see results</p>
+        </div>
+    `;
+    document.getElementById('rootCauseCard').style.display = 'none';
+}
+
+function loadScenario(type) {
+    if (type === 'best') {
+        document.getElementById('invoice_amount').value = 10000;
+        document.getElementById('payment_terms').value = 45;
+        document.getElementById('vendor_past_delays').value = 0;
+        document.getElementById('cash_flow_level').value = 'High';
+        document.getElementById('vendor_relationship_length').value = 48;
+        document.getElementById('vendor_category').value = 'Utilities';
+    } else if (type === 'worst') {
+        document.getElementById('invoice_amount').value = 80000;
+        document.getElementById('payment_terms').value = 15;
+        document.getElementById('vendor_past_delays').value = 15;
+        document.getElementById('cash_flow_level').value = 'Low';
+        document.getElementById('vendor_relationship_length').value = 3;
+        document.getElementById('vendor_category').value = 'Services';
+    } else {
+        document.getElementById('invoice_amount').value = 25000;
+        document.getElementById('payment_terms').value = 30;
+        document.getElementById('vendor_past_delays').value = 3;
+        document.getElementById('cash_flow_level').value = 'Medium';
+        document.getElementById('vendor_relationship_length').value = 12;
+        document.getElementById('vendor_category').value = 'Manufacturing';
+    }
+    
+    updateValueDisplay('invoice_amount');
+    updateValueDisplay('payment_terms');
+    updateValueDisplay('vendor_past_delays');
+    updateValueDisplay('vendor_relationship_length');
+    
+    document.getElementById('whatIfForm').dispatchEvent(new Event('submit'));
+}
+
+document.getElementById('whatIfForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const data = {
+        vendor_id: document.getElementById('vendor_id').value,
+        vendor_category: document.getElementById('vendor_category').value,
+        invoice_amount: parseFloat(document.getElementById('invoice_amount').value),
+        payment_terms: parseInt(document.getElementById('payment_terms').value),
+        vendor_past_delays: parseInt(document.getElementById('vendor_past_delays').value),
+        cash_flow_level: document.getElementById('cash_flow_level').value,
+        vendor_relationship_length: parseInt(document.getElementById('vendor_relationship_length').value),
+        invoice_date: new Date().toISOString().split('T')[0],
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        days_until_due: 30,
+        vendor_reliability_score: 100 - (parseInt(document.getElementById('vendor_past_delays').value) * 5),
+        vendor_risk_score: parseInt(document.getElementById('vendor_past_delays').value) * 5
+    };
+    
+    try {
+        const response = await fetch('/api/what-if-predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            displayResults(result);
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+});
+
+function displayResults(result) {
+    const riskColor = result.risk_level === 'HIGH' ? 'danger' : result.risk_level === 'MEDIUM' ? 'warning' : 'success';
+    const predictionText = result.prediction === 1 ? 'DELAYED' : 'ON-TIME';
+    const predictionColor = result.prediction === 1 ? 'danger' : 'success';
+    
+    document.getElementById('resultsPanel').innerHTML = `
+        <div class="text-center">
+            <h3 class="text-${predictionColor} mb-3">
+                <i class="fas fa-${result.prediction === 1 ? 'times-circle' : 'check-circle'}"></i>
+                ${predictionText}
+            </h3>
+            
+            <div class="mb-4">
+                <h5>Delay Probability</h5>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar bg-${riskColor}" role="progressbar" 
+                         style="width: ${(result.probability * 100).toFixed(1)}%;" 
+                         aria-valuenow="${(result.probability * 100).toFixed(1)}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        ${(result.probability * 100).toFixed(1)}%
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Risk Level</h6>
+                            <h4><span class="badge bg-${riskColor}">${result.risk_level}</span></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Confidence</h6>
+                            <h4>${result.confidence.toFixed(1)}%</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Display root cause factors
+    if (result.top_factors && result.top_factors.length > 0) {
+        let factorsHTML = '<ul class="list-group">';
+        result.top_factors.forEach((factor, index) => {
+            const impact = Math.abs(factor.value) > 1 ? 'High' : Math.abs(factor.value) > 0.5 ? 'Medium' : 'Low';
+            const badgeColor = impact === 'High' ? 'danger' : impact === 'Medium' ? 'warning' : 'info';
+            factorsHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${index + 1}. ${factor.feature.replace(/_/g, ' ').toUpperCase()}</span>
+                    <span class="badge bg-${badgeColor}">${impact} Impact</span>
+                </li>
+            `;
+        });
+        factorsHTML += '</ul>';
+        
+        document.getElementById('rootCausePanel').innerHTML = factorsHTML;
+        document.getElementById('rootCauseCard').style.display = 'block';
+    }
+}
+</script>
+{% endblock %}

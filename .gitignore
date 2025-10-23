@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Data files (large)
+data/raw/*.csv
+!data/raw/vendor_payments_sample.csv
+
+# Model files (large)
+models/trained_models/*.pkl
+models/trained_models/*.joblib
+
+# Logs
+*.log
+
+# Environment
+.env
+
+# Word/PDF docs (optional - keep the final PDF)
+*.docx
+Precision_Marketing_System_for_Cross-Border_E-commerce_Based_on_Data_Mining_Technology.pdf
+DWDM*.docx
+
+# Temporary files
+GETTING_STARTED.md
+PROJECT_SUMMARY.md
+TASK_ASSIGNMENTS.md
+TEAM_ROLES.md

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="content-wrapper">
+        <h2 class="mb-4"><i class="fas fa-magic"></i> Predict Payment Delay</h2>
+        <p class="lead mb-4">Enter invoice details to predict the likelihood of payment delay</p>
+
+        <form method="POST" action="/predict">
+            <div class="row">
+                <!-- Basic Information -->
+                <div class="col-md-6">
+                    <h5 class="mb-3">Basic Information</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Vendor ID</label>
+                        <input type="text" class="form-control" name="vendor_id" value="V0001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Invoice ID</label>
+                        <input type="text" class="form-control" name="invoice_id" value="INV001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vendor Category</label>
+                        <select class="form-select" name="vendor_category" required>
+                            {% for category in categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Invoice Amount ($)</label>
+                        <input type="number" step="0.01" class="form-control" name="invoice_amount" value="50000" required>
+                    </div>
+                </div>
+
+                <!-- Dates and Terms -->
+                <div class="col-md-6">
+                    <h5 class="mb-3">Dates & Terms</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Invoice Date</label>
+                        <input type="date" class="form-control" name="invoice_date" value="2025-01-15" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-control" name="due_date" value="2025-02-14" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Terms (days)</label>
+                        <input type="number" class="form-control" name="payment_terms" value="30" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quarter</label>
+                        <select class="form-select" name="quarter" required>
+                            <option value="Q1">Q1</option>
+                            <option value="Q2">Q2</option>
+                            <option value="Q3">Q3</option>
+                            <option value="Q4">Q4</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Year</label>
+                        <input type="number" class="form-control" name="year" value="2025" required>
+                    </div>
+                </div>
+
+                <!-- Financial Information -->
+                <div class="col-md-6">
+                    <h5 class="mb-3">Financial Information</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Cash Flow Level</label>
+                        <select class="form-select" name="cash_flow_level" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Month Cash Available ($)</label>
+                        <input type="number" step="0.01" class="form-control" name="month_cash_available" value="5000000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Economic Indicator</label>
+                        <input type="number" step="0.01" class="form-control" name="economic_indicator" value="100" required>
+                        <small class="form-text text-muted">Value between 70-120</small>
+                    </div>
+                </div>
+
+                <!-- Vendor History -->
+                <div class="col-md-6">
+                    <h5 class="mb-3">Vendor History</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Vendor Past Delays</label>
+                        <input type="number" class="form-control" name="vendor_past_delays" value="2" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vendor Relationship Years</label>
+                        <input type="number" step="0.1" class="form-control" name="vendor_relationship_years" value="3.5" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Frequency (per year)</label>
+                        <input type="number" class="form-control" name="payment_frequency" value="12" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Has Dispute?</label>
+                        <select class="form-select" name="has_dispute" required>
+                            <option value="0" selected>No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-custom btn-lg">
+                    <i class="fas fa-magic"></i> Predict Delay Risk
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

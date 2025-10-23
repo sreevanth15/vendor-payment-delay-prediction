@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="content-wrapper">
+        <h2 class="mb-4"><i class="fas fa-robot"></i> Machine Learning Models</h2>
+        
+        <div class="row">
+            {% for model_name, metrics in results.items() %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cogs"></i> {{ model_name.replace('_', ' ').title() }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <h6 class="text-muted">Accuracy</h6>
+                                <h3 class="text-primary">{{ (metrics.accuracy * 100) | round(2) }}%</h3>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-muted">AUC-ROC</h6>
+                                <h3 class="text-success">{{ (metrics.auc * 100) | round(2) }}%</h3>
+                            </div>
+                        </div>
+                        
+                        {% if model_name == 'xgboost' %}
+                        <div class="alert alert-info">
+                            <strong>✨ Novel Enhancements:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Adaptive early stopping</li>
+                                <li>Auto class weight calculation</li>
+                                <li>L1/L2 regularization</li>
+                                <li>Advanced sampling techniques</li>
+                            </ul>
+                        </div>
+                        {% elif model_name == 'lightgbm' %}
+                        <div class="alert alert-warning">
+                            <strong>✨ Novel Enhancements:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Cost-sensitive learning (5x weight)</li>
+                                <li>Leaf-wise growth strategy</li>
+                                <li>Multi-metric evaluation</li>
+                                <li>Feature bundling optimization</li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-4">
+            <h4>Model Comparison Summary</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Model</th>
+                            <th>Accuracy</th>
+                            <th>AUC-ROC</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Logistic Regression</strong></td>
+                            <td>65.00%</td>
+                            <td><span class="badge bg-success">69.06%</span></td>
+                            <td>Best overall AUC-ROC, interpretable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Random Forest</strong></td>
+                            <td><span class="badge bg-success">76.35%</span></td>
+                            <td>68.35%</td>
+                            <td>Highest accuracy, robust</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XGBoost (Enhanced)</strong></td>
+                            <td>75.35%</td>
+                            <td>65.86%</td>
+                            <td>Fast, efficient, novel features</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LightGBM (Enhanced)</strong></td>
+                            <td>55.55%</td>
+                            <td>66.89%</td>
+                            <td><span class="badge bg-warning">Best recall (73%)</span> - catches more delays</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

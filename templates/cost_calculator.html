@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Cost Impact Calculator - Vendor Payment Prediction{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="content-wrapper">
+        <h2 class="mb-4"><i class="fas fa-calculator text-success"></i> Cost Impact Calculator</h2>
+        
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <strong>Financial Impact:</strong> 
+            See the real cost of payment delays on your business and potential savings with our prediction system!
+        </div>
+
+        <!-- Current Cost Analysis -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-exclamation-circle"></i> Current Financial Impact</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="stat-card bg-primary">
+                                    <h3>{{ stats.total_payments }}</h3>
+                                    <p>Total Payments</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card bg-danger">
+                                    <h3>{{ stats.delayed_payments }}</h3>
+                                    <p>Delayed Payments</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card bg-warning text-dark">
+                                    <h3>{{ stats.delay_rate }}%</h3>
+                                    <p>Delay Rate</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card bg-info">
+                                    <h3>${{ "{:,.0f}".format(stats.avg_invoice_amount) }}</h3>
+                                    <p>Avg Invoice Amount</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost Breakdown -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> Annual Cost Breakdown</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><strong>Late Payment Fees (2%)</strong></span>
+                                <span class="text-danger">${{ "{:,.2f}".format(stats.late_fees) }}</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar bg-danger" style="width: {{ (stats.late_fees / stats.total_annual_cost * 100) | round(1) }}%">
+                                    {{ (stats.late_fees / stats.total_annual_cost * 100) | round(1) }}%
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><strong>Vendor Relationship Costs</strong></span>
+                                <span class="text-warning">${{ "{:,.2f}".format(stats.relationship_costs) }}</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar bg-warning" style="width: {{ (stats.relationship_costs / stats.total_annual_cost * 100) | round(1) }}%">
+                                    {{ (stats.relationship_costs / stats.total_annual_cost * 100) | round(1) }}%
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <h5><strong>Total Annual Cost:</strong></h5>
+                            <h5 class="text-danger"><strong>${{ "{:,.2f}".format(stats.total_annual_cost) }}</strong></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-piggy-bank"></i> Potential Savings with AI</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <h6 class="text-muted">Estimated Delay Reduction</h6>
+                            <h2 class="text-success">30%</h2>
+                            <p class="small">Based on proactive intervention and early warning</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="text-center mb-3">Annual Savings Potential</h5>
+                            <div class="display-4 text-success text-center mb-3">
+                                ${{ "{:,.2f}".format(stats.potential_savings) }}
+                            </div>
+                            <p class="text-center text-muted">
+                                <i class="fas fa-chart-line"></i> Projected annual savings
+                            </p>
+                        </div>
+
+                        <div class="alert alert-success mb-0">
+                            <strong><i class="fas fa-lightbulb"></i> ROI Insight:</strong> 
+                            With our prediction system, you could save approximately 
+                            <strong>${{ "{:,.0f}".format(stats.potential_savings / 12) }}/month</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Calculator -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-sliders-h"></i> Custom Scenario Calculator</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="customCalculator">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Number of Annual Payments</label>
+                                        <input type="number" class="form-control" id="numPayments" value="{{ stats.total_payments }}" min="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Average Invoice Amount ($)</label>
+                                        <input type="number" class="form-control" id="avgAmount" value="{{ stats.avg_invoice_amount | round | int }}" min="1000">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Delay Rate (%)</label>
+                                        <input type="number" class="form-control" id="delayRate" value="{{ stats.delay_rate }}" min="0" max="100" step="0.1">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Late Fee Rate (%)</label>
+                                        <input type="number" class="form-control" id="lateFeeRate" value="2" min="0" max="10" step="0.1">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Relationship Cost per Delay ($)</label>
+                                        <input type="number" class="form-control" id="relationshipCost" value="500" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="button" class="btn btn-primary btn-lg" onclick="calculateCustom()">
+                                    <i class="fas fa-calculator"></i> Calculate Impact
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="customResults" class="mt-4" style="display: none;">
+                            <hr>
+                            <h5 class="text-center mb-3">Your Custom Scenario</h5>
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6>Total Annual Cost</h6>
+                                            <h4 class="text-danger" id="customTotalCost">$0</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6>With 30% Reduction</h6>
+                                            <h4 class="text-warning" id="customReducedCost">$0</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-success text-white">
+                                        <div class="card-body">
+                                            <h6>Potential Savings</h6>
+                                            <h4 id="customSavings">$0</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Recommendations -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-tasks"></i> Cost Reduction Strategies</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-check-circle text-success"></i> Short-term Actions</h6>
+                                <ul>
+                                    <li>Implement early warning system for high-risk payments</li>
+                                    <li>Prioritize payments based on risk scores</li>
+                                    <li>Negotiate better terms with high-delay categories</li>
+                                    <li>Set up automated reminders 7 days before due dates</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-chart-line text-primary"></i> Long-term Strategies</h6>
+                                <ul>
+                                    <li>Build vendor relationships through consistent payments</li>
+                                    <li>Implement cash flow optimization tools</li>
+                                    <li>Create vendor performance scorecards</li>
+                                    <li>Develop strategic payment partnerships</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function calculateCustom() {
+    const numPayments = parseFloat(document.getElementById('numPayments').value);
+    const avgAmount = parseFloat(document.getElementById('avgAmount').value);
+    const delayRate = parseFloat(document.getElementById('delayRate').value) / 100;
+    const lateFeeRate = parseFloat(document.getElementById('lateFeeRate').value) / 100;
+    const relationshipCost = parseFloat(document.getElementById('relationshipCost').value);
+    
+    const delayedPayments = numPayments * delayRate;
+    const lateFees = delayedPayments * avgAmount * lateFeeRate;
+    const relationshipCosts = delayedPayments * relationshipCost;
+    const totalCost = lateFees + relationshipCosts;
+    
+    const savings = totalCost * 0.3;
+    const reducedCost = totalCost - savings;
+    
+    document.getElementById('customTotalCost').textContent = '$' + totalCost.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('customReducedCost').textContent = '$' + reducedCost.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('customSavings').textContent = '$' + savings.toLocaleString(undefined, {maximumFractionDigits: 2});
+    
+    document.getElementById('customResults').style.display = 'block';
+    document.getElementById('customResults').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

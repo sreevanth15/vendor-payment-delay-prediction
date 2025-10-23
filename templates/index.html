@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="content-wrapper">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-chart-line text-primary"></i>
+                Vendor Payment Delay Prediction System
+            </h1>
+            <p class="lead text-muted">
+                Leveraging Machine Learning & Data Mining to Predict Payment Delays Before They Happen
+            </p>
+        </div>
+
+        <!-- Feature Highlights -->
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <i class="fas fa-brain"></i>
+                    <h4>AI-Powered Predictions</h4>
+                    <p>Advanced ML models including XGBoost, LightGBM, and Random Forest with novel enhancements</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <i class="fas fa-clock"></i>
+                    <h4>Real-Time Analysis</h4>
+                    <p>Instant risk assessment for new invoices with probability scoring</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <i class="fas fa-chart-bar"></i>
+                    <h4>Comprehensive Dashboard</h4>
+                    <p>Visual analytics and insights for data-driven decision making</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mt-5">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3>10,000+</h3>
+                    <p>Payment Records Analyzed</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3>76%</h3>
+                    <p>Model Accuracy</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3>4</h3>
+                    <p>ML Models Trained</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3>40+</h3>
+                    <p>Engineered Features</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5">
+            <h3 class="mb-4">Get Started</h3>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/dashboard" class="btn btn-custom btn-lg">
+                    <i class="fas fa-tachometer-alt"></i> View Dashboard
+                </a>
+                <a href="/predict" class="btn btn-custom btn-lg">
+                    <i class="fas fa-magic"></i> Make Prediction
+                </a>
+            </div>
+        </div>
+
+        <!-- Project Highlights -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4 text-center">Project Highlights</h3>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-primary mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-cogs"></i> Novel Enhancements
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Cost-sensitive learning for LightGBM</li>
+                            <li><i class="fas fa-check text-success"></i> Adaptive early stopping for XGBoost</li>
+                            <li><i class="fas fa-check text-success"></i> Multi-metric evaluation system</li>
+                            <li><i class="fas fa-check text-success"></i> Advanced feature engineering (40+ features)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-success mb-3">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-bullseye"></i> Key Results
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-star text-warning"></i> Best AUC-ROC: 0.69 (Logistic Regression)</li>
+                            <li><i class="fas fa-star text-warning"></i> Highest Accuracy: 76% (Random Forest)</li>
+                            <li><i class="fas fa-star text-warning"></i> Best Recall: 73% (Enhanced LightGBM)</li>
+                            <li><i class="fas fa-star text-warning"></i> 307 delays correctly identified</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
